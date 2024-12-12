@@ -48,10 +48,10 @@ public class SecurityController {
 
         try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
-                    signinRequest.getUsername(), signinRequest.getPassword()
+                    signinRequest.getEmail(), signinRequest.getPassword()
             ));
         } catch (BadCredentialsException e) {
-            return new ResponseEntity<>("Invalid username or password", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Invalid email or password", HttpStatus.UNAUTHORIZED);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -63,9 +63,7 @@ public class SecurityController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
-        if (userRepository.existsByUsername(signupRequest.getUsername())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Choose different name");
-        }
+
 
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Choose different email");
@@ -74,7 +72,6 @@ public class SecurityController {
         String hashedPassword = passwordEncoder.encode(signupRequest.getPassword());
 
         User user = new User();
-        user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
         user.setPassword(hashedPassword);
 
