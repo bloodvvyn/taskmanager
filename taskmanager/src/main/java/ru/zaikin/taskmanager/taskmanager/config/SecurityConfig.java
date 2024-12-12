@@ -25,8 +25,8 @@ import ru.zaikin.taskmanager.taskmanager.util.JWTFilter;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    private JWTFilter jwtFilter;
-    private UserService userService;
+    private final JWTFilter jwtFilter;
+    private final UserService userService;
 
     @Autowired
     public SecurityConfig(JWTFilter jwtFilter, UserService userService) {
@@ -44,6 +44,8 @@ public class SecurityConfig {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
+    /*Под капотом объект из билдера присвоится в метод выше и таким образом появится конфигурация аутентификации*/
+
     @Primary
     @Bean(name = "customAuthenticationManagerBuilder")
     public AuthenticationManagerBuilder authenticationManagerBuilder(AuthenticationManagerBuilder authenticationManagerBuilder) throws Exception {
@@ -55,7 +57,11 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(csrf -> csrf.disable()) // Отключаем CSRF защиту для тестирования
+                // Включаем CSRF защиту для продакшена
+                // .csrf(csrf -> csrf.tokenRepository(CookieTokenRepository.DEFAULT))
+
+                // cors для тестировния
                 .cors(httpSecurityCorsConfigurer ->
                         httpSecurityCorsConfigurer.configurationSource(request ->
                                 new CorsConfiguration().applyPermitDefaultValues()))
@@ -67,8 +73,31 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/security/user").fullyAuthenticated()
-                        .anyRequest().permitAll())
-                        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // cors для продакшена
+
+/*        .cors(cors -> cors
+                .allowedOrigins("https://our-domain.com") // Замените на ваш домен
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(true)
+        )
+
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+
+                .sessionManagement(session -> session.sessionCreationPolicy(
+                        SessionCreationPolicy.STATELESS
+                ))
+
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/security/user").fullyAuthenticated()
+                        .anyRequest().authenticated())
+
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);*/
 
         return http.build();
     }
