@@ -15,22 +15,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.zaikin.taskmanager.taskmanager.dto.SigninRequest;
 import ru.zaikin.taskmanager.taskmanager.dto.SignupRequest;
+import ru.zaikin.taskmanager.taskmanager.model.Role;
 import ru.zaikin.taskmanager.taskmanager.model.User;
+import ru.zaikin.taskmanager.taskmanager.repository.RoleRepository;
 import ru.zaikin.taskmanager.taskmanager.repository.UserRepository;
 import ru.zaikin.taskmanager.taskmanager.util.JWTCore;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/auth")
 public class SecurityController {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTCore jwtCore;
 
     @Autowired
-    public SecurityController(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTCore jwtCore) {
+    public SecurityController(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTCore jwtCore) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtCore = jwtCore;
@@ -71,6 +77,12 @@ public class SecurityController {
         user.setUsername(signupRequest.getUsername());
         user.setEmail(signupRequest.getEmail());
         user.setPassword(hashedPassword);
+
+        Role role = roleRepository.findById(Long.valueOf(1)).get();
+        System.out.println(role.getName());
+        user.addRole(role);
+        System.out.println(user.getRoles());
+
         userRepository.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
