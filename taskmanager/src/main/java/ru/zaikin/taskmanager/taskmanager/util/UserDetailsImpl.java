@@ -18,20 +18,22 @@ public class UserDetailsImpl implements UserDetails {
     private Long id;
     private String email;
     private String password;
-    
+    private Collection<? extends GrantedAuthority> authorities;
+
 
     public static UserDetailsImpl build(User user) {
         return new UserDetailsImpl(
                 user.getId(),
                 user.getEmail(),
-                user.getPassword()
+                user.getPassword(),
+                user.getRoles()
         );
     }
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return authorities;
     }
 
     @Override
