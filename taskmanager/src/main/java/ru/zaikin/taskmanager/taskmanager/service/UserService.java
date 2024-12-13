@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.zaikin.taskmanager.taskmanager.model.User;
 import ru.zaikin.taskmanager.taskmanager.repository.UserRepository;
 import ru.zaikin.taskmanager.taskmanager.util.UserDetailsImpl;
@@ -17,6 +18,19 @@ public class UserService implements UserDetailsService {
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+    }
+
+
+    public User getUser(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException(email));
+    }
+
+
+    public User addUser(User user) {
+
+
+
+        return userRepository.save(user);
     }
 
     @Override
