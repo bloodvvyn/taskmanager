@@ -23,6 +23,7 @@ public class UserController {
     public String getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         System.out.println(authentication.getAuthorities());
+        System.out.println(authentication.getName());
         return "Hello World";
     }
 }

@@ -21,8 +21,7 @@ public class Task {
     @Enumerated(EnumType.STRING)
     private Priority priority;
 
-    @OneToMany
-    @JoinColumn(name = "comment_id")
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     private List<Comment> comments = new ArrayList<>();
 
     @ManyToOne
@@ -32,4 +31,9 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "executor_id")
     private User executor;
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+    }
+
 }

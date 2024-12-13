@@ -16,8 +16,6 @@ import java.util.Date;
 public class JWTCore {
 
     private Key key;
-    @Value("${testing.app.expriration}")
-    private int lifetime;
 
     public JWTCore(@Value("${testing.app.secret}") String token) {
         this.key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(token));
@@ -31,7 +29,7 @@ public class JWTCore {
         return Jwts.builder()
                 .setSubject((userDetails.getUsername()))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date((new Date()).getTime() + lifetime))
+                .setExpiration(new Date((new Date()).getTime() + 86400000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

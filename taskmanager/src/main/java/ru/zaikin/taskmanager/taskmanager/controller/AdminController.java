@@ -1,10 +1,13 @@
 package ru.zaikin.taskmanager.taskmanager.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import ru.zaikin.taskmanager.taskmanager.dto.CommentDTO;
 import ru.zaikin.taskmanager.taskmanager.dto.TaskDTO;
+import ru.zaikin.taskmanager.taskmanager.model.Comment;
 import ru.zaikin.taskmanager.taskmanager.model.Task;
 import ru.zaikin.taskmanager.taskmanager.repository.RoleRepository;
 import ru.zaikin.taskmanager.taskmanager.repository.TaskRepository;
@@ -21,6 +24,12 @@ public class AdminController {
     public AdminController(TaskService taskService, UserService userService) {
         this.taskService = taskService;
         this.userService = userService;
+    }
+
+    @PostMapping("/comment")
+    @Tag(name = "Admin API", description = "API для добавления комментария")
+    public void  addComment(@RequestBody CommentDTO commentDTO, @RequestParam long id) {
+        taskService.addComment(commentDTO, id);
     }
 
     @GetMapping("/get")

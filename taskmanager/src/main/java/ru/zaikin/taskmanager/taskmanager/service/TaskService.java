@@ -2,13 +2,18 @@ package ru.zaikin.taskmanager.taskmanager.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.zaikin.taskmanager.taskmanager.dto.CommentDTO;
 import ru.zaikin.taskmanager.taskmanager.dto.TaskDTO;
+import ru.zaikin.taskmanager.taskmanager.model.Comment;
 import ru.zaikin.taskmanager.taskmanager.model.Task;
 import ru.zaikin.taskmanager.taskmanager.repository.TaskRepository;
+
+import java.time.LocalDateTime;
 
 @Service
 public class TaskService {
@@ -19,6 +24,21 @@ public class TaskService {
     public TaskService(TaskRepository taskRepository, UserService userService) {
         this.taskRepository = taskRepository;
         this.userService = userService;
+    }
+
+    @Transactional
+    public void addComment(CommentDTO commentDTO , long id) {
+
+        Comment comment = new Comment();
+
+
+        comment.setText(commentDTO.getText());
+        comment.setAuthor(userService.getUser(commentDTO.getAuthor()));
+        comment.setData(LocalDateTime.now());
+        comment.setTask(taskRepository.findById(commentDTO.getTaskId()).get());
+
+        taskRepository.findById(id).get().addComment(comment);
+
     }
 
     @Transactional(readOnly = true)
