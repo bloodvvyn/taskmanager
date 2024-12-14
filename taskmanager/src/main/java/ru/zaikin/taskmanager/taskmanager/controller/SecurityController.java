@@ -21,8 +21,6 @@ import ru.zaikin.taskmanager.taskmanager.repository.RoleRepository;
 import ru.zaikin.taskmanager.taskmanager.repository.UserRepository;
 import ru.zaikin.taskmanager.taskmanager.util.JWTCore;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/auth")
 public class SecurityController {

@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import ru.zaikin.taskmanager.taskmanager.model.User;
 
 import java.util.Collection;
-import java.util.List;
 
 @Data
 @NoArgsConstructor

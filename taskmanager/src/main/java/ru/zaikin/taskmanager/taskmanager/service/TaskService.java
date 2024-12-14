@@ -2,13 +2,11 @@ package ru.zaikin.taskmanager.taskmanager.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zaikin.taskmanager.taskmanager.dto.CommentDTO;
 import ru.zaikin.taskmanager.taskmanager.dto.TaskDTO;
+import ru.zaikin.taskmanager.taskmanager.exception.TaskNotFoundException;
 import ru.zaikin.taskmanager.taskmanager.model.Comment;
 import ru.zaikin.taskmanager.taskmanager.model.Task;
 import ru.zaikin.taskmanager.taskmanager.repository.TaskRepository;
@@ -27,14 +25,16 @@ public class TaskService {
     }
 
     @Transactional
-    public void addComment(CommentDTO commentDTO , long id) {
+    public void addComment(CommentDTO commentDTO, long id) {
 
         Comment comment = new Comment();
-
-
         comment.setText(commentDTO.getText());
         comment.setAuthor(userService.getUser(commentDTO.getAuthor()));
         comment.setData(LocalDateTime.now());
+
+        if (taskRepository.findById(commentDTO.getTaskId()).isEmpty())
+            throw new TaskNotFoundException("Задача под идентификатором :" + commentDTO.getTaskId() + " не была найдена");
+
         comment.setTask(taskRepository.findById(commentDTO.getTaskId()).get());
 
         taskRepository.findById(id).get().addComment(comment);
@@ -44,7 +44,7 @@ public class TaskService {
     @Transactional(readOnly = true)
     public TaskDTO getTask(long id) {
         TaskDTO taskDTO = new TaskDTO();
-        Task task = taskRepository.findById(id).orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
         taskDTO.setId(id);
         taskDTO.setHeadline(task.getHeadline());
@@ -60,22 +60,11 @@ public class TaskService {
 
 
     @Transactional
-    public Task createTask(TaskDTO taskDTO, long id) {
-
-        try {
-            userService.getUser(taskDTO.getAuthor());
-        } catch (UsernameNotFoundException e) {
-            logger.error(taskDTO.getAuthor() + " not found");
-        }
-
-        try {
-            userService.getUser(taskDTO.getExecutor());
-        } catch (UsernameNotFoundException e) {
-            logger.error(taskDTO.getAuthor() + " not found");
-        }
+    public Task createTask(TaskDTO taskDTO, Long id) {
 
         Task task = new Task();
-        if (id != 0)
+
+        if (id != null)
             task.setId(id);
 
         task.setHeadline(taskDTO.getHeadline());
@@ -90,6 +79,9 @@ public class TaskService {
 
     @Transactional
     public void deleteTask(long id) {
+
+        taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found"));
+
         taskRepository.deleteById(id);
     }
 }
