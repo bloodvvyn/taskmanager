@@ -1,0 +1,37 @@
+services:
+  app:
+    build: .
+    container_name: taskmaster
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+    networks:
+      - app-network
+
+  db:
+    image: postgres:15
+    container_name: taskmasterPostgres
+    ports:
+      - "5432:5433"  # Пробрасываем порт 5432
+    environment:
+      POSTGRES_DB: postgres  # Обновлено имя базы данных
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db_data:

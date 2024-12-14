@@ -61,7 +61,7 @@ public class AdminController {
     })
     public ResponseEntity<?> getTask(@RequestParam int id) {
         try {
-            return ResponseEntity.status(HttpStatus.OK).body(taskService.getTask(id));
+            return ResponseEntity.status(HttpStatus.OK).body(taskService.getTaskDTO(id));
         } catch (TaskNotFoundException e) {
             logger.error("Задача под идентификатором :" + id + " не был найдена");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Task not found");

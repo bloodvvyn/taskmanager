@@ -1,11 +1,14 @@
 package ru.zaikin.taskmanager.taskmanager.service;
 
+import org.apache.tomcat.websocket.AuthenticationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.zaikin.taskmanager.taskmanager.dto.CommentDTO;
 import ru.zaikin.taskmanager.taskmanager.dto.TaskDTO;
+import ru.zaikin.taskmanager.taskmanager.enums.Status;
 import ru.zaikin.taskmanager.taskmanager.exception.TaskNotFoundException;
 import ru.zaikin.taskmanager.taskmanager.model.Comment;
 import ru.zaikin.taskmanager.taskmanager.model.Task;
@@ -25,6 +28,23 @@ public class TaskService {
     }
 
     @Transactional
+    public void addCommentByUser(CommentDTO commentDTO, long taskId, String authorEmail)  {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("task not found"));
+
+        if (task.getAuthor().getEmail() != authorEmail)
+            throw new AuthorizationDeniedException("You have not enough right");
+
+        Comment comment = new Comment();
+        comment.setText(commentDTO.getText());
+        comment.setAuthor(userService.getUser(commentDTO.getAuthor()));
+        comment.setData(LocalDateTime.now());
+        comment.setTask(taskRepository.findById(commentDTO.getTaskId()).get());
+
+        taskRepository.findById(taskId).get().addComment(comment);
+
+    }
+
+    @Transactional
     public void addComment(CommentDTO commentDTO, long id) {
 
         Comment comment = new Comment();
@@ -41,8 +61,26 @@ public class TaskService {
 
     }
 
+    @Transactional
+    public void setStatus(Status taskStatus, long taskId, long authorId) {
+        Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException("Task not found"));
+
+        if (task.getAuthor().getId() != authorId) {
+            throw new AuthorizationDeniedException("You haven't permission to change this task");
+        } else {
+            task.setStatus(taskStatus);
+            taskRepository.save(task);
+        }
+
+    }
+
     @Transactional(readOnly = true)
-    public TaskDTO getTask(long id) {
+    public Task getTask(long id) {
+        return taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public TaskDTO getTaskDTO(long id) {
         TaskDTO taskDTO = new TaskDTO();
         Task task = taskRepository.findById(id).orElseThrow(() -> new TaskNotFoundException("Task not found"));
 
