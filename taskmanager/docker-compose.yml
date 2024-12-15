@@ -19,9 +19,9 @@ services:
     image: postgres:15
     container_name: taskmasterPostgres
     ports:
-      - "5432:5433"  # Пробрасываем порт 5432
+      - "5432:5433"
     environment:
-      POSTGRES_DB: postgres  # Обновлено имя базы данных
+      POSTGRES_DB: postgres
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:

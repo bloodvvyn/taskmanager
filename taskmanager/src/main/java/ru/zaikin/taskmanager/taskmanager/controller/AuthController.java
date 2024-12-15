@@ -1,5 +1,9 @@
 package ru.zaikin.taskmanager.taskmanager.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +27,8 @@ import ru.zaikin.taskmanager.taskmanager.util.JWTCore;
 
 @RestController
 @RequestMapping("/auth")
-public class SecurityController {
+@Tag(name = "API для аутентификации на сайте")
+public class AuthController {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -32,7 +37,7 @@ public class SecurityController {
     private final JWTCore jwtCore;
 
     @Autowired
-    public SecurityController(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTCore jwtCore) {
+    public AuthController(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JWTCore jwtCore) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -41,6 +46,12 @@ public class SecurityController {
     }
 
     @PostMapping("/signin")
+    @Operation(summary = "Аутентификация", description = "Отправляем на сервер mail и password, в ответе получаем jwt" +
+            "token")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Пользователь был успешно аутентифицирован"),
+            @ApiResponse(responseCode = "401", description = "Пользователь ввел неверный логин или пароль")
+    })
     public ResponseEntity<?> signin(@RequestBody SigninRequest signinRequest) {
         Authentication authentication = null;
 
@@ -60,6 +71,11 @@ public class SecurityController {
 
 
     @PostMapping("/signup")
+    @Operation(summary = "Регистрация на сайте")
+    @ApiResponses({
+            @ApiResponse(responseCode = "400", description = "Был указан уже существующий email"),
+            @ApiResponse(responseCode = "201", description = "Регистрация была успешно завершена")
+    })
     public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
 
 
