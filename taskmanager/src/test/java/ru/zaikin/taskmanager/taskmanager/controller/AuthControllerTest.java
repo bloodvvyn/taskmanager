@@ -1,6 +1,5 @@
 package ru.zaikin.taskmanager.taskmanager.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,11 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.PostgreSQLContainer;
-import org.springframework.security.test.context.support.WithMockUser;
 import ru.zaikin.taskmanager.taskmanager.dto.SigninRequest;
 import ru.zaikin.taskmanager.taskmanager.dto.SignupRequest;
 import ru.zaikin.taskmanager.taskmanager.repository.UserRepository;
-import ru.zaikin.taskmanager.taskmanager.repository.RoleRepository;
 import ru.zaikin.taskmanager.taskmanager.model.User;
 import ru.zaikin.taskmanager.taskmanager.service.UserService;
 
@@ -49,9 +46,6 @@ class AuthControllerIT {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
 
     @Autowired
     AuthController authController;
@@ -136,15 +130,11 @@ class AuthControllerIT {
         signupRequest.setEmail("test@example.com");
         signupRequest.setPassword("password123");
 
-
-
         User user = new User();
         user.setEmail("test@example.com");
         user.setPassword("password123");
 
-
         userService.addUser(user);
-
 
         String signupJson = objectMapper.writeValueAsString(signupRequest);
 
@@ -155,8 +145,6 @@ class AuthControllerIT {
                 .andExpect(MockMvcResultMatchers.content().string("Choose different email"));  // Ожидаем сообщение об ошибке
 
         assertEquals("test@example.com", user.getEmail());
-
-
     }
 
 
@@ -164,6 +152,5 @@ class AuthControllerIT {
     void tearDown() {
         postgresContainer.stop();
     }
-
 }
 

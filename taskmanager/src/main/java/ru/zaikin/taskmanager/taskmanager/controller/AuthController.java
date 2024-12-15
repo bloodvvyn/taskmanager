@@ -69,7 +69,6 @@ public class AuthController {
 
     }
 
-
     @PostMapping("/signup")
     @Operation(summary = "Регистрация на сайте")
     @ApiResponses({
@@ -99,5 +98,4 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
 
     }
-
 }
