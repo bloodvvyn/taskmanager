@@ -25,7 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class AuthControllerIT {
+class AuthControllerTest {
 
     private static PostgreSQLContainer<?> postgresContainer = new PostgreSQLContainer<>("postgres:15")
             .withDatabaseName("testdb")
@@ -116,7 +116,6 @@ class AuthControllerIT {
                 .andExpect(MockMvcResultMatchers.status().is(HttpStatus.CREATED.value()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.email").value("test@example.com"));
 
-        // Проверяем, что пользователь был добавлен в базу данных
         User user = userService.getUser("test@example.com");
         assert user != null;
         assert user.getEmail().equals("test@example.com");
@@ -141,8 +140,8 @@ class AuthControllerIT {
         mockMvc.perform(MockMvcRequestBuilders.post("/auth/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(signupJson))
-                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))  // Ожидаем статус 400 BAD REQUEST
-                .andExpect(MockMvcResultMatchers.content().string("Choose different email"));  // Ожидаем сообщение об ошибке
+                .andExpect(MockMvcResultMatchers.status().is(HttpStatus.BAD_REQUEST.value()))
+                .andExpect(MockMvcResultMatchers.content().string("Choose different email"));
 
         assertEquals("test@example.com", user.getEmail());
     }

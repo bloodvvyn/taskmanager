@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.zaikin.taskmanager.taskmanager.dto.CommentDTO;
 import ru.zaikin.taskmanager.taskmanager.dto.TaskDTO;
 import ru.zaikin.taskmanager.taskmanager.exception.TaskNotFoundException;
+import ru.zaikin.taskmanager.taskmanager.model.Task;
 import ru.zaikin.taskmanager.taskmanager.service.TaskService;
 
 @RestController
@@ -77,13 +78,15 @@ public class AdminController {
             @ApiResponse(responseCode = "401", description = "У вас недостаточно прав для выполнения операции")
     })
     public ResponseEntity<?> create(@RequestBody TaskDTO taskDTO) {
+        Task task;
 
         try {
-            taskService.createTask(taskDTO, taskDTO.getId());
+             task = taskService.createTask(taskDTO, taskDTO.getId());
         } catch (UsernameNotFoundException e) {
             return new ResponseEntity<>("Username not found", HttpStatus.NOT_FOUND);
         }
 
+        taskDTO.setId(task.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(taskDTO);
     }
 
