@@ -36,7 +36,7 @@ public class AdminController {
             @ApiResponse(responseCode = "404", description = "Задача или автор не найдена"),
             @ApiResponse(responseCode = "401", description = "У вас недостаточно прав для выполнения операции")
     })
-    public ResponseEntity<?>  addComment(@RequestBody CommentDTO commentDTO, @RequestParam long id) {
+    public ResponseEntity<?> addComment(@RequestBody CommentDTO commentDTO, @RequestParam long id) {
 
         try {
             taskService.addComment(commentDTO, id);
